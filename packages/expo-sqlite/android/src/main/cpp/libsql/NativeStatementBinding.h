@@ -5,7 +5,7 @@
 #include <fbjni/fbjni.h>
 #include <string>
 
-#include "sqlite3.h"
+#include "libsql.h"
 
 namespace jni = facebook::jni;
 
@@ -35,9 +35,11 @@ public:
   jni::local_ref<jni::JArrayList<jni::JObject>> getColumnValues();
 
 private:
-  explicit NativeStatementBinding(jni::alias_ref<NativeStatementBinding::jhybridobject> jThis) {}
+  explicit NativeStatementBinding(
+      jni::alias_ref<NativeStatementBinding::jhybridobject> jThis) {}
 
   jni::local_ref<jni::JObject> getColumnValue(int index);
+  libsql_rows_t getRows();
 
 private:
   static jni::local_ref<jhybriddata>
@@ -47,7 +49,9 @@ private:
   friend HybridBase;
   friend NativeDatabaseBinding;
 
-  exsqlite3_stmt *stmt;
+  libsql_stmt_t stmt = nullptr;
+  libsql_rows_t rows = nullptr;
+  libsql_row_t currentRow = nullptr;
 };
 
 } // namespace expo

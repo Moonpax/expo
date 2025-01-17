@@ -6,7 +6,7 @@
 #include <string>
 
 #include "NativeStatementBinding.h"
-#include "sqlite3.h"
+#include "libsql.h"
 
 namespace jni = facebook::jni;
 
@@ -39,6 +39,10 @@ public:
                           jni::alias_ref<jni::JArrayByte> serializedData);
   void sqlite3_update_hook(bool enabled);
 
+  int libsql_open_remote(const std::string &url, const std::string &authToken);
+  int libsql_open(const std::string &dbPath, const std::string &url,
+                  const std::string &authToken, int syncInterval);
+
   // helpers
   jni::local_ref<jni::JString> convertSqlLiteErrorToString();
 
@@ -52,13 +56,14 @@ private:
   initHybrid(jni::alias_ref<jhybridobject> jThis);
 
   static void OnUpdateHook(void *arg, int action, char const *databaseName,
-                           char const *tableName, sqlite3_int64 rowId);
+                           char const *tableName, int64_t rowId);
 
 private:
   friend HybridBase;
 
   jni::global_ref<NativeDatabaseBinding::javaobject> javaPart_;
-  sqlite3 *db;
+  libsql_database_t db = nullptr;
+  libsql_connection_t conn = nullptr;
 };
 
 } // namespace expo
